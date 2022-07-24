@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Simulation {
     private final Vehicle vehicle;
 
@@ -31,7 +33,7 @@ public class Simulation {
         s = s + "\nTime\t";
         s = s + "Velocity\t\t"; s = s + "Fuel\t\t";
         s = s + "Altitude\t\t"; s = s + "Burn\n";
-        s = s + "----\t";
+        s = s + "----\t\n";
         s = s + "-----\t\t";
         s = s + "----\t\t";
         s = s + "------\t\t"; s = s + "----\n";
@@ -47,14 +49,20 @@ public class Simulation {
         }
     }
 
+    OnBoardComputer boardComputer = new OnBoardComputer();
+
     // main game loop
     public int runSimulation(BurnStream burnSource) {
         DescentEvent status = null;
         int burnInterval = 0;
+//        int burnInt = 0;
         printString(gameHeader());
         printString(getHeader());
         while (vehicle.stillFlying()) {
             status = vehicle.getStatus(burnInterval);
+            boardComputer.getNextBurn(status);
+//            vehicle.adjustForBurn(burnInt);
+//            vehicle.computeDeltaV();
             System.out.print(status.toString()+"\t\t");
             vehicle.adjustForBurn(burnSource.getNextBurn(status));
             if (vehicle.outOfFuel()) {
@@ -67,12 +75,20 @@ public class Simulation {
         }
         printString(vehicle.checkFinalStatus());
         if (status != null) {
-            return status.getStatus();
+//            return status.getStatus();
+            return vehicle.getFlying();
+            // vehicle get flying
         }
         return -1;
     }
 
     public static void main(String[] args) {
+        Simulation simulation = new Simulation(new Vehicle(randomaltitude()));
+        OnBoardComputer boardComputer = new OnBoardComputer();
+        BurnInputStream burnInputStream = new BurnInputStream();
+        simulation.runSimulation(boardComputer);
+
+       // simulation.runSimulation(burnInputStream);
         // create a new Simulation object with a random starting altitude
         // create a new BurnInputStream
         // pass the new BurnInputStream to the runSimulation method
